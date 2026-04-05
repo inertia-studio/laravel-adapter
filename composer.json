@@ -1,9 +1,17 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "inertia-studio/laravel",
-    "description": "Laravel adapter for Inertia Studio — service provider, routing, controllers, Eloquent integration, and CLI generators.",
+    "description": "Server-driven admin panels for Laravel + Inertia.js. Define forms, tables, and pages in PHP — render with React, Vue, or Svelte.",
+    "keywords": ["laravel", "inertia", "admin", "panel", "crud", "react", "vue", "svelte"],
     "type": "library",
     "license": "MIT",
+    "homepage": "https://inertia-studio.github.io",
+    "authors": [
+        {
+            "name": "Abdullah Khan",
+            "email": "abdullah@mantiq.dev"
+        }
+    ],
     "require": {
         "php": "^8.4",
         "laravel/framework": "^12.0||^13.0",
