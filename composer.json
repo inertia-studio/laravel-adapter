@@ -8,8 +8,7 @@
     "homepage": "https://inertia-studio.github.io",
     "authors": [
         {
-            "name": "Abdullah Khan",
-            "email": "abdullah@mantiq.dev"
+            "name": "Inertia Studio"
         }
     ],
     "require": {
