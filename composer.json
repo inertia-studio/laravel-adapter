@@ -1,0 +1,29 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "inertia-studio/laravel",
+    "description": "Laravel adapter for Inertia Studio — service provider, routing, controllers, Eloquent integration, and CLI generators.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "laravel/framework": "^12.0||^13.0",
+        "inertiajs/inertia-laravel": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "InertiaStudio\\": "core/",
+            "InertiaStudio\\Laravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "InertiaStudio\\Laravel\\InertiaStudioServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}

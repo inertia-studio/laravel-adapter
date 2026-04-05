@@ -1,0 +1,12 @@
+<?php
+
+namespace {{ namespace }};
+
+use InertiaStudio\Page as BasePage;
+
+class {{ class }} extends BasePage
+{
+    protected string $slug = '{{ slug }}';
+
+    protected string $label = '{{ label }}';
+}

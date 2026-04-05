@@ -1,0 +1,38 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ modelClass }};
+use InertiaStudio\Action;
+use InertiaStudio\Column;
+use InertiaStudio\Field;
+use InertiaStudio\Form;
+use InertiaStudio\Layout;
+use InertiaStudio\Module;
+use InertiaStudio\Table;
+
+class {{ class }} extends Module
+{
+    protected static string $model = {{ model }}::class;
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            //
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                //
+            ])
+            ->actions([
+                Action::view(),
+                Action::edit(),
+                Action::delete(),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
+}

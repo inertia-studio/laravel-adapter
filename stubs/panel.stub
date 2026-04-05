@@ -1,0 +1,30 @@
+<?php
+
+namespace {{ namespace }};
+
+use InertiaStudio\Panel;
+use InertiaStudio\Theme;
+use InertiaStudio\LayoutConfig;
+
+class {{ class }} extends Panel
+{
+    protected string $path = '{{ path }}';
+
+    protected string $brandName = '{{ class }}';
+
+    public function theme(): Theme
+    {
+        return Theme::make()
+            ->primary('#2563eb');
+    }
+
+    public function layout(): LayoutConfig
+    {
+        return LayoutConfig::make();
+    }
+
+    public function canAccess(mixed $user): bool
+    {
+        return true;
+    }
+}

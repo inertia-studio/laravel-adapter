@@ -1,0 +1,28 @@
+<?php
+
+namespace {{ namespace }};
+
+use InertiaStudio\Field;
+use InertiaStudio\Column;
+use InertiaStudio\Form;
+use InertiaStudio\Relation;
+use InertiaStudio\Table;
+
+class {{ class }} extends Relation
+{
+    protected static string $relationship = '{{ relationship }}';
+
+    public function form(Form $form): Form
+    {
+        return $form->schema([
+            //
+        ]);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table->columns([
+            //
+        ]);
+    }
+}
