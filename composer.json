@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "inertia-studio/laravel",
+    "name": "inertia-studio/laravel-adapter",
     "description": "Server-driven admin panels for Laravel + Inertia.js. Define forms, tables, and pages in PHP — render with React, Vue, or Svelte.",
     "keywords": ["laravel", "inertia", "admin", "panel", "crud", "react", "vue", "svelte"],
     "type": "library",
