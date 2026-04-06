@@ -4,6 +4,8 @@ namespace InertiaStudio;
 
 class StudioNotification
 {
+    protected ?string $id = null;
+
     protected string $title;
 
     protected ?string $body = null;
@@ -20,8 +22,20 @@ class StudioNotification
     {
         $notification = new static;
         $notification->title = $title;
+        $notification->id = bin2hex(random_bytes(8));
 
         return $notification;
+    }
+
+    /**
+     * Set a stable ID (e.g. from Laravel's notification system).
+     * Used to detect new vs existing notifications between polls.
+     */
+    public function id(string $id): static
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function body(string $body): static
@@ -65,6 +79,7 @@ class StudioNotification
     public function toArray(): array
     {
         return [
+            'id' => $this->id,
             'title' => $this->title,
             'body' => $this->body,
             'icon' => $this->icon,
