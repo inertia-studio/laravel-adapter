@@ -27,7 +27,12 @@ class HandleStudioInertiaRequests extends Middleware
                     'email' => $request->user($panel->guard())->email ?? '',
                     'avatar' => null,
                 ] : null,
-                'notifications' => [],
+                'notifications' => fn () => $panel && $request->user($panel->guard())
+                    ? array_map(
+                        fn ($n) => $n->toArray(),
+                        $panel->notifications($request->user($panel->guard())),
+                    )
+                    : [],
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

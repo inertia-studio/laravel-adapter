@@ -134,6 +134,17 @@ abstract class Panel implements JsonSerializable
     }
 
     /**
+     * Return notifications to display in the topbar bell icon.
+     * Override this to pull from your database, cache, or notification system.
+     *
+     * @return array<StudioNotification>
+     */
+    public function notifications(mixed $user): array
+    {
+        return [];
+    }
+
+    /**
      * @return array<Widget>
      */
     public function dashboard(): array
