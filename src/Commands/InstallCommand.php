@@ -19,9 +19,10 @@ class InstallCommand extends Command
     {
         $this->components->info('Installing Inertia Studio...');
 
-        // 1. Publish config
+        // 1. Publish config + assets
         $this->callSilently('vendor:publish', ['--tag' => 'studio-config']);
-        $this->info('  Published config/studio.php');
+        $this->callSilently('vendor:publish', ['--tag' => 'studio-assets', '--force' => true]);
+        $this->info('  Published config and assets.');
 
         // 2. Detect framework
         $framework = $this->option('framework') ?? $this->detectFramework();

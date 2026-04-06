@@ -12,10 +12,14 @@ class {{ class }} extends Panel
 
     protected string $brandName = '{{ class }}';
 
+    protected ?string $brandLogo = '/vendor/studio/logo-wordmark.svg';
+
+    protected ?string $brandLogoDark = '/vendor/studio/logo-wordmark-dark.svg';
+
     public function theme(): Theme
     {
         return Theme::make()
-            ->primary('#2563eb');
+            ->primary('#4f46e5');
     }
 
     public function layout(): LayoutConfig

@@ -50,6 +50,12 @@ class InertiaStudioServiceProvider extends ServiceProvider
                 __DIR__.'/../config/studio.php' => config_path('studio.php'),
             ], 'studio-config');
 
+            $this->publishes([
+                __DIR__.'/../resources/logo.svg' => public_path('vendor/studio/logo.svg'),
+                __DIR__.'/../resources/logo-wordmark.svg' => public_path('vendor/studio/logo-wordmark.svg'),
+                __DIR__.'/../resources/logo-wordmark-dark.svg' => public_path('vendor/studio/logo-wordmark-dark.svg'),
+            ], 'studio-assets');
+
             $this->commands([
                 InstallCommand::class,
                 MakePanelCommand::class,
