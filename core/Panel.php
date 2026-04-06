@@ -12,7 +12,9 @@ abstract class Panel implements JsonSerializable
 
     protected string $path = '/admin';
 
-    protected string $brandName = 'Admin';
+    protected ?string $brandName = null;
+
+    protected ?string $brandIcon = null;
 
     protected ?string $brandLogo = null;
 
@@ -200,7 +202,7 @@ abstract class Panel implements JsonSerializable
 
     public function getBrandName(): string
     {
-        return $this->brandName;
+        return $this->brandName ?? config('app.name', 'Admin');
     }
 
     /**
@@ -235,7 +237,8 @@ abstract class Panel implements JsonSerializable
         return [
             'id' => $this->getId(),
             'path' => $this->path,
-            'brandName' => $this->brandName,
+            'brandName' => $this->getBrandName(),
+            'brandIcon' => $this->brandIcon,
             'brandLogo' => $this->brandLogo,
             'brandLogoDark' => $this->brandLogoDark,
             'brandLogoCollapsed' => $this->brandLogoCollapsed,

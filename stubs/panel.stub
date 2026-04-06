@@ -10,11 +10,7 @@ class {{ class }} extends Panel
 {
     protected string $path = '{{ path }}';
 
-    protected string $brandName = '{{ class }}';
-
-    protected ?string $brandLogo = '/vendor/studio/logo-wordmark.svg';
-
-    protected ?string $brandLogoDark = '/vendor/studio/logo-wordmark-dark.svg';
+    protected ?string $brandIcon = '/vendor/studio/logo.svg';
 
     public function theme(): Theme
     {
