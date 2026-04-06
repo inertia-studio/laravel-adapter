@@ -28,33 +28,40 @@ class InstallCommand extends Command
         $framework = $this->option('framework') ?? $this->detectFramework();
 
         if (! $framework) {
-            $framework = $this->choice(
-                'Which frontend framework are you using?',
-                ['react', 'vue', 'svelte'],
-                'react',
-            );
+            if ($this->input->isInteractive()) {
+                $framework = $this->choice(
+                    'Which frontend framework would you like to use?',
+                    ['react', 'vue', 'svelte'],
+                    'react',
+                );
+            } else {
+                $framework = 'react';
+            }
         }
 
         $this->updateConfigFramework($framework);
         $this->info("  Framework: {$framework}");
 
-        // 3. Install npm package
+        // 3. Install Inertia + framework dependencies if missing
+        $this->installDependencies($framework);
+
+        // 4. Install npm package
         $this->installNpmPackage();
 
-        // 4. Create app/Studio directory and default panel
+        // 5. Create app/Studio directory and default panel
         if (! File::isDirectory(app_path('Studio'))) {
             File::makeDirectory(app_path('Studio'), 0755, true);
         }
 
         $this->call('studio:panel', ['name' => 'Admin', '--no-interaction' => true]);
 
-        // 5. Configure Vite plugin
+        // 6. Configure Vite plugin
         $this->configureVite($framework);
 
-        // 6. Configure app entry
+        // 7. Configure app entry
         $this->configureAppEntry($framework);
 
-        // 7. Configure Tailwind
+        // 8. Configure Tailwind
         $this->configureTailwind();
 
         $this->newLine();
@@ -67,6 +74,116 @@ class InstallCommand extends Command
         $this->comment('  Then visit /admin');
 
         return self::SUCCESS;
+    }
+
+    protected function installDependencies(string $framework): void
+    {
+        $packageJsonPath = base_path('package.json');
+        $composerJson = json_decode(File::get(base_path('composer.json')), true);
+        $composerDeps = array_merge(
+            $composerJson['require'] ?? [],
+            $composerJson['require-dev'] ?? [],
+        );
+
+        $npmDeps = [];
+        if (File::exists($packageJsonPath)) {
+            $packageJson = json_decode(File::get($packageJsonPath), true);
+            $npmDeps = array_merge(
+                $packageJson['dependencies'] ?? [],
+                $packageJson['devDependencies'] ?? [],
+            );
+        }
+
+        $pm = $this->detectPackageManager();
+        $missingComposer = [];
+        $missingNpm = [];
+
+        // Check Inertia Laravel
+        if (! isset($composerDeps['inertiajs/inertia-laravel'])) {
+            $missingComposer[] = 'inertiajs/inertia-laravel';
+        }
+
+        // Check framework npm packages
+        $frameworkPackages = match ($framework) {
+            'vue' => ['@inertiajs/vue3', 'vue', '@vitejs/plugin-vue'],
+            'svelte' => ['@inertiajs/svelte', 'svelte', '@sveltejs/vite-plugin-svelte'],
+            default => ['@inertiajs/react', 'react', 'react-dom', '@vitejs/plugin-react'],
+        };
+
+        foreach ($frameworkPackages as $pkg) {
+            if (! isset($npmDeps[$pkg])) {
+                $missingNpm[] = $pkg;
+            }
+        }
+
+        // Check Inertia vite plugin
+        if (! isset($npmDeps['@inertiajs/vite'])) {
+            $missingNpm[] = '@inertiajs/vite';
+        }
+
+        if (empty($missingComposer) && empty($missingNpm)) {
+            $this->info('  All dependencies already installed.');
+
+            return;
+        }
+
+        // Show what's missing and ask
+        $this->newLine();
+        $this->components->warn('Missing dependencies detected:');
+
+        if (! empty($missingComposer)) {
+            foreach ($missingComposer as $pkg) {
+                $this->line("    <comment>composer</comment> {$pkg}");
+            }
+        }
+
+        if (! empty($missingNpm)) {
+            foreach ($missingNpm as $pkg) {
+                $this->line("    <comment>{$pm}</comment>     {$pkg}");
+            }
+        }
+
+        $this->newLine();
+
+        if ($this->input->isInteractive() && ! $this->confirm('Install missing dependencies?', true)) {
+            $this->warn('  Skipped. Install them manually before running your app.');
+
+            return;
+        }
+
+        // Install Composer dependencies
+        if (! empty($missingComposer)) {
+            $composerCmd = 'composer require '.implode(' ', $missingComposer).' --no-interaction';
+            $this->info("  Running: {$composerCmd}");
+            $result = Process::path(base_path())->timeout(120)->run($composerCmd);
+
+            if ($result->successful()) {
+                $this->info('  Composer dependencies installed.');
+            } else {
+                $this->error('  Failed to install Composer dependencies.');
+                $this->line($result->errorOutput());
+            }
+        }
+
+        // Install npm dependencies
+        if (! empty($missingNpm)) {
+            $installCmd = match ($pm) {
+                'yarn' => 'yarn add '.implode(' ', $missingNpm),
+                'pnpm' => 'pnpm add '.implode(' ', $missingNpm),
+                'bun' => 'bun add '.implode(' ', $missingNpm),
+                default => 'npm install '.implode(' ', $missingNpm),
+            };
+
+            $this->info("  Running: {$installCmd}");
+            $result = Process::path(base_path())->timeout(120)->run($installCmd);
+
+            if ($result->successful()) {
+                $this->info('  npm dependencies installed.');
+            } else {
+                $this->error('  Failed to install npm dependencies.');
+                $this->line($result->errorOutput());
+            }
+        }
     }
 
     protected function installNpmPackage(): void
