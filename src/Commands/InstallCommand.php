@@ -180,20 +180,58 @@ class InstallCommand extends Command
             return;
         }
 
-        // Add import
+        // Add imports
         if (! str_contains($contents, '@inertia-studio/ui/vite')) {
             $contents = "import { resolveStudioPage } from '@inertia-studio/ui/vite';\n".$contents;
         }
 
-        // Try to patch the resolve function
-        if (str_contains($contents, 'resolvePageComponent')) {
+        if (! str_contains($contents, 'resolvePageComponent') && ! str_contains($contents, 'laravel-vite-plugin/inertia-helpers')) {
+            $contents = "import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';\n".$contents;
+        }
+
+        // Case 1: Already has a resolve function with resolvePageComponent
+        if (str_contains($contents, 'resolvePageComponent') && str_contains($contents, 'resolve:') || str_contains($contents, 'resolve(')) {
             $contents = preg_replace(
                 '/(resolve:\s*\(name\)\s*(?:=>|{)\s*(?:return\s+)?)(\s*resolvePageComponent)/s',
                 "$1resolveStudioPage(name) ??\n$2",
                 $contents,
                 1,
             );
-            $this->info('  Added resolveStudioPage() to app entry.');
+            $this->info('  Added resolveStudioPage() to existing resolve function.');
+        }
+        // Case 2: Has createInertiaApp but no resolve function (e.g. @inertiajs/vite auto-resolution)
+        elseif (str_contains($contents, 'createInertiaApp') && ! str_contains($contents, 'resolve')) {
+            // Add page glob if not present
+            if (! str_contains($contents, 'import.meta.glob')) {
+                $globLine = "\nconst appPages = import.meta.glob<{ default: React.ComponentType }>('./pages/**/*.{$ext}');\n";
+                $contents = preg_replace(
+                    '/(createInertiaApp)/s',
+                    $globLine.'$1',
+                    $contents,
+                    1,
+                );
+            }
+
+            // Insert resolve property into createInertiaApp options
+            $resolveCode = "resolve: (name) => resolveStudioPage(name) ?? resolvePageComponent(`./pages/\${name}.{$ext}`, appPages),\n    ";
+            $contents = preg_replace(
+                '/(createInertiaApp\(\{[^}]*?)(progress:|title:|layout:|strictMode:)/s',
+                "$1{$resolveCode}$2",
+                $contents,
+                1,
+            );
+
+            // Add Studio:: to layout function to return null for Studio pages
+            if (str_contains($contents, 'layout:') || str_contains($contents, 'layout(')) {
+                $contents = preg_replace(
+                    '/(layout[:\s]*\(name[^)]*\)\s*(?:=>|{)\s*(?:{?\s*))/s',
+                    "$1\n        if (name.startsWith('Studio::')) return null;\n        ",
+                    $contents,
+                    1,
+                );
+            }
+
+            $this->info('  Added resolve function with resolveStudioPage() to app entry.');
         } else {
             $this->warn('  Could not auto-configure page resolver. See docs for manual setup.');
         }
