@@ -234,6 +234,40 @@ class Widget implements JsonSerializable
         return $this;
     }
 
+    /**
+     * Multi-series data for stacked/grouped charts.
+     *
+     * @param  array<array{name: string, data: array<int|float>, color?: string}>  $series
+     */
+    public function series(array $series): static
+    {
+        $this->extra['series'] = $series;
+
+        return $this;
+    }
+
+    /**
+     * X-axis labels for multi-series charts.
+     *
+     * @param  array<string>  $labels
+     */
+    public function labels(array $labels): static
+    {
+        $this->extra['labels'] = $labels;
+
+        return $this;
+    }
+
+    /**
+     * Stack bars/areas on top of each other (vs side-by-side).
+     */
+    public function stacked(bool $stacked = true): static
+    {
+        $this->extra['stacked'] = $stacked;
+
+        return $this;
+    }
+
     public function content(string $content): static
     {
         $this->extra['content'] = $content;
