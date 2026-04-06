@@ -22,7 +22,6 @@ class StudioNotification
     {
         $notification = new static;
         $notification->title = $title;
-        $notification->id = bin2hex(random_bytes(8));
 
         return $notification;
     }
