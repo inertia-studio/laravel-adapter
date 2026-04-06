@@ -18,9 +18,24 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('studio.login')
 Route::post('/login', [AuthController::class, 'login'])->name('studio.login.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->name('studio.logout');
 
+// Registration
+Route::get('/register', [AuthController::class, 'showRegister'])->name('studio.register');
+Route::post('/register', [AuthController::class, 'register'])->name('studio.register.attempt');
+
+// Password reset
+Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('studio.password.request');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('studio.password.email');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('studio.password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('studio.password.update');
+
 // Protected routes
 $guard = app(PanelManager::class)->getCurrentPanel()?->guard() ?? 'web';
 Route::middleware([Authenticate::class.':'.$guard, AuthorizePanelAccess::class])->group(function () {
+    // Email verification
+    Route::get('/verify-email', [AuthController::class, 'showVerifyEmail'])->name('studio.verification.notice');
+    Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('studio.verification.verify');
+    Route::post('/verify-email/resend', [AuthController::class, 'resendVerification'])->middleware('throttle:6,1')->name('studio.verification.send');
+
     // Dashboard
     Route::get('/', [PanelController::class, 'dashboard'])->name('studio.dashboard');
 

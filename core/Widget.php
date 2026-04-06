@@ -56,6 +56,82 @@ class Widget implements JsonSerializable
         return $widget;
     }
 
+    // ─── Chart Widgets ────────────────────────────────────────
+
+    /**
+     * Line chart.
+     *
+     * @param  array<array{label: string, value: int|float}>|Closure  $data
+     */
+    public static function line(string $label, array|Closure $data = []): static
+    {
+        $widget = new static('chart', $label);
+        $widget->extra['chartType'] = 'line';
+        $widget->extra['data'] = $data instanceof Closure ? ($data)() : $data;
+
+        return $widget;
+    }
+
+    /**
+     * Area chart (filled line).
+     *
+     * @param  array<array{label: string, value: int|float}>|Closure  $data
+     */
+    public static function area(string $label, array|Closure $data = []): static
+    {
+        $widget = new static('chart', $label);
+        $widget->extra['chartType'] = 'area';
+        $widget->extra['data'] = $data instanceof Closure ? ($data)() : $data;
+
+        return $widget;
+    }
+
+    /**
+     * Bar chart.
+     *
+     * @param  array<array{label: string, value: int|float}>|Closure  $data
+     */
+    public static function bar(string $label, array|Closure $data = []): static
+    {
+        $widget = new static('chart', $label);
+        $widget->extra['chartType'] = 'bar';
+        $widget->extra['data'] = $data instanceof Closure ? ($data)() : $data;
+
+        return $widget;
+    }
+
+    /**
+     * Donut/Pie chart.
+     *
+     * @param  array<array{label: string, value: int|float, color?: string}>|Closure  $data
+     */
+    public static function donut(string $label, array|Closure $data = []): static
+    {
+        $widget = new static('chart', $label);
+        $widget->extra['chartType'] = 'donut';
+        $widget->extra['data'] = $data instanceof Closure ? ($data)() : $data;
+
+        return $widget;
+    }
+
+    /**
+     * Sparkline — compact inline chart (no labels, no axes).
+     *
+     * @param  array<int|float>|Closure  $values
+     */
+    public static function sparkline(array|Closure $values = []): static
+    {
+        $widget = new static('sparkline', '');
+        $resolvedValues = $values instanceof Closure ? ($values)() : $values;
+        $widget->extra['data'] = array_map(
+            fn (int|float $v, int $i) => ['label' => (string) $i, 'value' => $v],
+            array_values($resolvedValues),
+            array_keys($resolvedValues),
+        );
+
+        return $widget;
+    }
+
     // ─── Content Widgets ─────────────────────────────────────
 
     public static function section(string $heading): static
@@ -123,6 +199,37 @@ class Widget implements JsonSerializable
     public function columns(int $span): static
     {
         $this->columnSpan = $span;
+
+        return $this;
+    }
+
+    public function height(string $height): static
+    {
+        $this->extra['height'] = $height;
+
+        return $this;
+    }
+
+    /**
+     * Chart colors for multi-series or donut segments.
+     *
+     * @param  array<string>  $colors
+     */
+    public function colors(array $colors): static
+    {
+        $this->extra['colors'] = $colors;
+
+        return $this;
+    }
+
+    /**
+     * Chart data (alternative to constructor param).
+     *
+     * @param  array<array{label: string, value: int|float}>|Closure  $data
+     */
+    public function data(array|Closure $data): static
+    {
+        $this->extra['data'] = $data instanceof Closure ? ($data)() : $data;
 
         return $this;
     }

@@ -16,6 +16,8 @@ abstract class Panel implements JsonSerializable
 
     protected ?string $brandLogo = null;
 
+    protected ?string $brandLogoDark = null;
+
     protected ?string $brandLogoCollapsed = null;
 
     protected ?string $favicon = null;
@@ -24,6 +26,12 @@ abstract class Panel implements JsonSerializable
 
     /** @var array<string> */
     protected array $middleware = ['web'];
+
+    protected bool $registration = false;
+
+    protected bool $passwordReset = true;
+
+    protected bool $emailVerification = false;
 
     /** @var array<class-string<Module>> */
     protected array $discoveredModules = [];
@@ -51,6 +59,59 @@ abstract class Panel implements JsonSerializable
     public function middleware(): array
     {
         return $this->middleware;
+    }
+
+    public function hasRegistration(): bool
+    {
+        return $this->registration;
+    }
+
+    public function hasPasswordReset(): bool
+    {
+        return $this->passwordReset;
+    }
+
+    public function hasEmailVerification(): bool
+    {
+        return $this->emailVerification;
+    }
+
+    /**
+     * Override to provide a custom login page class.
+     *
+     * @return class-string|null
+     */
+    public function loginPage(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * Override to provide a custom registration page class.
+     *
+     * @return class-string|null
+     */
+    public function registerPage(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * Called after a new user registers. Override to customize post-registration behavior.
+     */
+    public function afterRegistration(mixed $user): void
+    {
+        //
+    }
+
+    /**
+     * The model class to use for registration. Defaults to the guard's provider model.
+     *
+     * @return class-string|null
+     */
+    public function userModel(): ?string
+    {
+        return null;
     }
 
     /**
@@ -142,6 +203,7 @@ abstract class Panel implements JsonSerializable
             'path' => $this->path,
             'brandName' => $this->brandName,
             'brandLogo' => $this->brandLogo,
+            'brandLogoDark' => $this->brandLogoDark,
             'brandLogoCollapsed' => $this->brandLogoCollapsed,
             'favicon' => $this->favicon,
             'theme' => $this->theme()->toArray(),
@@ -151,6 +213,11 @@ abstract class Panel implements JsonSerializable
                 fn (string $module) => $module::meta(),
                 $modules,
             ),
+            'auth' => [
+                'registration' => $this->hasRegistration(),
+                'passwordReset' => $this->hasPasswordReset(),
+                'emailVerification' => $this->hasEmailVerification(),
+            ],
             'tenancy' => null,
             'user' => null,
         ];
