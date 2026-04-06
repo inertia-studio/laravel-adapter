@@ -36,6 +36,10 @@ Route::middleware([Authenticate::class.':'.$guard, AuthorizePanelAccess::class])
     Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('studio.verification.verify');
     Route::post('/verify-email/resend', [AuthController::class, 'resendVerification'])->middleware('throttle:6,1')->name('studio.verification.send');
 
+    // Notifications
+    Route::post('/notifications/{notificationId}/read', [PanelController::class, 'markNotificationRead'])->name('studio.notification.read');
+    Route::post('/notifications/read-all', [PanelController::class, 'markAllNotificationsRead'])->name('studio.notifications.read-all');
+
     // Dashboard
     Route::get('/', [PanelController::class, 'dashboard'])->name('studio.dashboard');
 

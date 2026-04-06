@@ -151,6 +151,23 @@ abstract class Panel implements JsonSerializable
     }
 
     /**
+     * Called when a user marks a notification as read.
+     * Override to handle dismissal in your database/notification system.
+     */
+    public function markNotificationRead(mixed $user, string $notificationId): void
+    {
+        //
+    }
+
+    /**
+     * Called when a user marks all notifications as read.
+     */
+    public function markAllNotificationsRead(mixed $user): void
+    {
+        //
+    }
+
+    /**
      * @return array<Widget>
      */
     public function dashboard(): array

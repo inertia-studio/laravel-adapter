@@ -295,6 +295,26 @@ class PanelController extends Controller
         return $serialized;
     }
 
+    public function markNotificationRead(Request $request, string $notificationId): RedirectResponse
+    {
+        $panel = app(PanelManager::class)->getCurrentPanel();
+        $user = $request->user($panel->guard());
+
+        $panel->markNotificationRead($user, $notificationId);
+
+        return redirect()->back();
+    }
+
+    public function markAllNotificationsRead(Request $request): RedirectResponse
+    {
+        $panel = app(PanelManager::class)->getCurrentPanel();
+        $user = $request->user($panel->guard());
+
+        $panel->markAllNotificationsRead($user);
+
+        return redirect()->back();
+    }
+
     public function profile(Request $request): Response
     {
         $panel = app(PanelManager::class)->getCurrentPanel();
