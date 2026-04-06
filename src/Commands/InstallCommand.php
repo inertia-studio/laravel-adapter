@@ -261,27 +261,33 @@ class InstallCommand extends Command
             return;
         }
 
-        // Add @source directives after existing @source or @import
-        $sourceLines = "\n@source '../../vendor/inertia-studio/laravel-adapter';\n@source '../../node_modules/@inertia-studio/ui';";
+        // Add Studio CSS import (design tokens, dark mode, transitions)
+        $studioImport = "@import '@inertia-studio/ui/studio.css';";
+
+        // Add @source directives
+        $sourceLines = "@source '../../vendor/inertia-studio/laravel-adapter';\n@source '../../node_modules/@inertia-studio/ui';";
+
+        // Build the block to inject
+        $injection = "\n{$studioImport}\n\n{$sourceLines}\n";
 
         if (str_contains($contents, '@source')) {
             // Add after last @source line
             $contents = preg_replace(
                 '/(@source\s+[^\n]+\n)(?!@source)/s',
-                "$1{$sourceLines}\n",
+                "$1{$injection}",
                 $contents,
                 1,
             );
         } elseif (str_contains($contents, "@import 'tailwindcss'")) {
             $contents = str_replace(
                 "@import 'tailwindcss';",
-                "@import 'tailwindcss';\n{$sourceLines}",
+                "@import 'tailwindcss';\n{$injection}",
                 $contents,
             );
         }
 
         File::put($cssPath, $contents);
-        $this->info('  Added Tailwind source paths for Studio.');
+        $this->info('  Added Studio styles and Tailwind source paths.');
     }
 
     protected function detectFramework(): ?string

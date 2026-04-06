@@ -37,7 +37,15 @@ class QueryBuilder
 
         return $query->where(function (Builder $q) use ($searchableColumns, $search) {
             foreach ($searchableColumns as $column) {
-                $q->orWhere($column, 'LIKE', "%{$search}%");
+                if (str_contains($column, '.')) {
+                    // Relationship column: "user.name" → whereHas('user', fn($q) => $q->where('name', ...))
+                    $parts = explode('.', $column);
+                    $field = array_pop($parts);
+                    $relation = implode('.', $parts);
+                    $q->orWhereHas($relation, fn (Builder $sub) => $sub->where($field, 'LIKE', "%{$search}%"));
+                } else {
+                    $q->orWhere($column, 'LIKE', "%{$search}%");
+                }
             }
         });
     }
@@ -101,6 +109,22 @@ class QueryBuilder
                 ->toArray();
 
             if (in_array($sortColumn, $sortableColumns)) {
+                if (str_contains($sortColumn, '.')) {
+                    // Relationship sort: use a subquery
+                    $parts = explode('.', $sortColumn);
+                    $field = array_pop($parts);
+                    $relation = implode('.', $parts);
+                    $related = $query->getModel()->{$relation}()->getRelated();
+
+                    return $query->orderBy(
+                        $related->newQuery()
+                            ->select($field)
+                            ->whereColumn($related->getQualifiedKeyName(), $query->getModel()->getTable().'.'.$relation.'_id')
+                            ->limit(1),
+                        $sortDirection,
+                    );
+                }
+
                 return $query->orderBy($sortColumn, $sortDirection);
             }
         }
