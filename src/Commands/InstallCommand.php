@@ -251,10 +251,22 @@ class InstallCommand extends Command
             return;
         }
 
-        // Add import
-        $contents = "import studio from '@inertia-studio/ui/vite';\n".$contents;
+        // Add imports
+        $frameworkImport = match ($framework) {
+            'vue' => "import vue from '@vitejs/plugin-vue';",
+            'svelte' => "import { svelte } from '@sveltejs/vite-plugin-svelte';",
+            default => "import react from '@vitejs/plugin-react';",
+        };
 
-        // Add studio() to plugins array — insert after react()/vue()/svelte()
+        if (! str_contains($contents, '@inertia-studio/ui/vite')) {
+            $contents = "import studio from '@inertia-studio/ui/vite';\n".$contents;
+        }
+
+        if (! str_contains($contents, $frameworkImport)) {
+            $contents = "{$frameworkImport}\n".$contents;
+        }
+
+        // Add framework plugin + studio() to plugins array
         $frameworkPlugin = match ($framework) {
             'vue' => 'vue(',
             'svelte' => 'svelte(',
@@ -262,15 +274,40 @@ class InstallCommand extends Command
         };
 
         if (str_contains($contents, $frameworkPlugin)) {
-            $contents = preg_replace(
-                '/('.preg_quote($frameworkPlugin, '/').'[^)]*\)\s*(?:,)?)/s',
-                "$1\n        studio(),",
-                $contents,
-                1,
-            );
+            // Framework plugin exists — add studio() after it
+            if (! str_contains($contents, 'studio()')) {
+                $contents = preg_replace(
+                    '/('.preg_quote($frameworkPlugin, '/').'[^)]*\)\s*(?:,)?)/s',
+                    "$1\n        studio(),",
+                    $contents,
+                    1,
+                );
+            }
             $this->info('  Added studio() to vite.config plugins.');
         } else {
-            $this->warn('  Could not auto-configure Vite. Add studio() to your plugins array manually.');
+            // Framework plugin missing — add both after laravel() or tailwindcss()
+            $frameworkCall = match ($framework) {
+                'vue' => 'vue(),',
+                'svelte' => 'svelte(),',
+                default => 'react(),',
+            };
+
+            $insertAfter = str_contains($contents, 'tailwindcss()') ? 'tailwindcss(),' : 'refresh: true,';
+            if (str_contains($contents, $insertAfter)) {
+                $contents = str_replace(
+                    $insertAfter,
+                    "{$insertAfter}\n        {$frameworkCall}\n        studio(),",
+                    $contents,
+                );
+                $this->info("  Added {$frameworkCall} and studio() to vite.config plugins.");
+            } else {
+                $this->warn('  Could not auto-configure Vite. Add '.$frameworkCall.' and studio() to your plugins array manually.');
+            }
+        }
+
+        // Update input entry from .js to .tsx for React
+        if ($framework === 'react' && str_contains($contents, 'app.js')) {
+            $contents = str_replace('app.js', 'app.tsx', $contents);
         }
 
         File::put($viteConfigPath, $contents);
@@ -287,6 +324,55 @@ class InstallCommand extends Command
         $entryPath = resource_path("js/app.{$ext}");
 
         if (! File::exists($entryPath)) {
+            // Create a fresh Inertia app entry
+            $appContent = match ($framework) {
+                'vue' => <<<'VUE'
+import { resolveStudioPage } from '@inertia-studio/ui/vite';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createInertiaApp } from '@inertiajs/vue3';
+import { createApp, h } from 'vue';
+
+const appPages = import.meta.glob('./pages/**/*.vue');
+
+createInertiaApp({
+    resolve: (name) => resolveStudioPage(name) ?? resolvePageComponent(`./pages/${name}.vue`, appPages),
+    setup({ el, App, props, plugin }) {
+        createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .mount(el);
+    },
+});
+VUE,
+                'svelte' => <<<'SVELTE'
+import { resolveStudioPage } from '@inertia-studio/ui/vite';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createInertiaApp } from '@inertiajs/svelte';
+
+const appPages = import.meta.glob('./pages/**/*.svelte');
+
+createInertiaApp({
+    resolve: (name) => resolveStudioPage(name) ?? resolvePageComponent(`./pages/${name}.svelte`, appPages),
+});
+SVELTE,
+                default => <<<'REACT'
+import { resolveStudioPage } from '@inertia-studio/ui/vite';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createInertiaApp } from '@inertiajs/react';
+
+const appPages = import.meta.glob<{ default: React.ComponentType }>('./pages/**/*.tsx');
+
+createInertiaApp({
+    resolve: (name) => resolveStudioPage(name) ?? resolvePageComponent(`./pages/${name}.tsx`, appPages),
+    progress: {
+        color: '#4B5563',
+    },
+});
+REACT,
+            };
+
+            File::put($entryPath, $appContent);
+            $this->info("  Created app entry at resources/js/app.{$ext}");
+
             return;
         }
 
