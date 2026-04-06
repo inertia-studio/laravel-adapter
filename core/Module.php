@@ -144,7 +144,25 @@ abstract class Module
 
     public static function getModel(): string
     {
-        return static::$model;
+        if (static::$model !== '') {
+            return static::$model;
+        }
+
+        // Auto-detect: Posts → App\Models\Post
+        $modelName = str(class_basename(static::class))->singular()->toString();
+
+        $candidates = [
+            "App\\Models\\{$modelName}",
+            "App\\{$modelName}",
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (class_exists($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $candidates[0];
     }
 
     public static function getRecordTitleAttribute(): string
