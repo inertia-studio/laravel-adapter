@@ -34,6 +34,8 @@ class Table implements JsonSerializable
     /** @var array{column: string, direction: string}|null */
     protected ?array $defaultSort = null;
 
+    protected ?string $groupBy = null;
+
     protected ?Closure $query = null;
 
     /**
@@ -122,6 +124,16 @@ class Table implements JsonSerializable
         return $this;
     }
 
+    /**
+     * Group table rows by a column value.
+     */
+    public function groupBy(string $column): static
+    {
+        $this->groupBy = $column;
+
+        return $this;
+    }
+
     public function query(Closure $callback): static
     {
         $this->query = $callback;
@@ -186,6 +198,7 @@ class Table implements JsonSerializable
             'defaultSort' => $this->defaultSort,
             'filterColumns' => $this->filterColumns,
             'poll' => $this->poll,
+            'groupBy' => $this->groupBy,
         ];
     }
 
