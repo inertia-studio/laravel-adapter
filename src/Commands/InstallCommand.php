@@ -189,8 +189,10 @@ class InstallCommand extends Command
             $contents = "import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';\n".$contents;
         }
 
-        // Case 1: Already has a resolve function with resolvePageComponent
-        if (str_contains($contents, 'resolvePageComponent') && str_contains($contents, 'resolve:') || str_contains($contents, 'resolve(')) {
+        $hasResolveProperty = (bool) preg_match('/\bresolve\s*[:({]/', $contents);
+
+        // Case 1: Already has a resolve property with resolvePageComponent
+        if ($hasResolveProperty && str_contains($contents, 'resolvePageComponent')) {
             $contents = preg_replace(
                 '/(resolve:\s*\(name\)\s*(?:=>|{)\s*(?:return\s+)?)(\s*resolvePageComponent)/s',
                 "$1resolveStudioPage(name) ??\n$2",
@@ -199,39 +201,43 @@ class InstallCommand extends Command
             );
             $this->info('  Added resolveStudioPage() to existing resolve function.');
         }
-        // Case 2: Has createInertiaApp but no resolve function (e.g. @inertiajs/vite auto-resolution)
-        elseif (str_contains($contents, 'createInertiaApp') && ! str_contains($contents, 'resolve')) {
-            // Add page glob if not present
+        // Case 2: Has createInertiaApp but no resolve property (e.g. @inertiajs/vite auto-resolution)
+        elseif (str_contains($contents, 'createInertiaApp') && ! $hasResolveProperty) {
+            // Add resolvePageComponent import
+            if (! str_contains($contents, 'resolvePageComponent')) {
+                $contents = "import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';\n".$contents;
+            }
+
+            // Add page glob before createInertiaApp
             if (! str_contains($contents, 'import.meta.glob')) {
-                $globLine = "\nconst appPages = import.meta.glob<{ default: React.ComponentType }>('./pages/**/*.{$ext}');\n";
-                $contents = preg_replace(
-                    '/(createInertiaApp)/s',
-                    $globLine.'$1',
+                $contents = str_replace(
+                    'createInertiaApp(',
+                    "const appPages = import.meta.glob<{ default: React.ComponentType }>('./pages/**/*.{$ext}');\n\ncreateInertiaApp(",
                     $contents,
-                    1,
                 );
             }
 
-            // Insert resolve property into createInertiaApp options
-            $resolveCode = "resolve: (name) => resolveStudioPage(name) ?? resolvePageComponent(`./pages/\${name}.{$ext}`, appPages),\n    ";
+            // Insert resolve property right after createInertiaApp({
+            $tpl = '`./pages/${name}.' . $ext . '`';
+            $resolveCode = "\n    resolve: (name) => resolveStudioPage(name) ?? resolvePageComponent({$tpl}, appPages),";
             $contents = preg_replace(
-                '/(createInertiaApp\(\{[^}]*?)(progress:|title:|layout:|strictMode:)/s',
-                "$1{$resolveCode}$2",
+                '/(createInertiaApp\(\{)\s*\n/',
+                "$1{$resolveCode}\n",
                 $contents,
                 1,
             );
 
-            // Add Studio:: to layout function to return null for Studio pages
-            if (str_contains($contents, 'layout:') || str_contains($contents, 'layout(')) {
+            // Add Studio:: guard to layout function
+            if (preg_match('/layout[:\s(]/', $contents)) {
                 $contents = preg_replace(
-                    '/(layout[:\s]*\(name[^)]*\)\s*(?:=>|{)\s*(?:{?\s*))/s',
-                    "$1\n        if (name.startsWith('Studio::')) return null;\n        ",
+                    '/(layout\s*[\(:]\s*\(name[^)]*\)\s*(?:=>)\s*\{)\s*\n/',
+                    "$1\n        if (name.startsWith('Studio::')) return null;\n",
                     $contents,
                     1,
                 );
             }
 
-            $this->info('  Added resolve function with resolveStudioPage() to app entry.');
+            $this->info('  Configured page resolver in app entry.');
         } else {
             $this->warn('  Could not auto-configure page resolver. See docs for manual setup.');
         }
