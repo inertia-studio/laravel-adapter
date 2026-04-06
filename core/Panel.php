@@ -33,6 +33,12 @@ abstract class Panel implements JsonSerializable
 
     protected bool $emailVerification = false;
 
+    /** Notification polling interval in seconds. 0 = disabled (refresh on navigation only). */
+    protected int $notificationPolling = 0;
+
+    /** Show a toast when new notifications arrive via polling. */
+    protected bool $notificationToasts = true;
+
     /** @var array<class-string<Module>> */
     protected array $discoveredModules = [];
 
@@ -229,6 +235,8 @@ abstract class Panel implements JsonSerializable
                 'passwordReset' => $this->hasPasswordReset(),
                 'emailVerification' => $this->hasEmailVerification(),
             ],
+            'notificationPolling' => $this->notificationPolling,
+            'notificationToasts' => $this->notificationToasts,
             'tenancy' => null,
             'user' => null,
         ];
