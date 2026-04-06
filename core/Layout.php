@@ -16,4 +16,14 @@ class Layout
     {
         return new Layouts\TabsLayout($tabs);
     }
+
+    /**
+     * Multi-step wizard form layout.
+     *
+     * @param  array<Layouts\WizardStep>  $steps
+     */
+    public static function wizard(array $steps = []): Layouts\WizardLayout
+    {
+        return new Layouts\WizardLayout($steps);
+    }
 }

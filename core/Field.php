@@ -153,4 +153,19 @@ class Field
     {
         return new Fields\RichEditorField($name);
     }
+
+    public static function otp(string $name): Fields\OtpField
+    {
+        return new Fields\OtpField($name);
+    }
+
+    public static function masked(string $name): Fields\MaskedField
+    {
+        return new Fields\MaskedField($name);
+    }
+
+    public static function rating(string $name): Fields\RatingField
+    {
+        return new Fields\RatingField($name);
+    }
 }
