@@ -44,6 +44,9 @@ abstract class Panel implements JsonSerializable
     /** @var array<class-string<Module>> */
     protected array $discoveredModules = [];
 
+    /** @var array<class-string<\InertiaStudio\Pages\DashboardPage>> */
+    protected array $discoveredPages = [];
+
     public function theme(): Theme
     {
         return Theme::make();
@@ -228,6 +231,26 @@ abstract class Panel implements JsonSerializable
     }
 
     /**
+     * Set custom pages discovered by the adapter's auto-discovery.
+     *
+     * @param  array<class-string<\InertiaStudio\Pages\DashboardPage>>  $pages
+     */
+    public function setDiscoveredPages(array $pages): void
+    {
+        $this->discoveredPages = $pages;
+    }
+
+    /**
+     * Get all auto-discovered custom pages (excluding Dashboard).
+     *
+     * @return array<\InertiaStudio\Pages\DashboardPage>
+     */
+    public function getPages(): array
+    {
+        return array_map(fn (string $class) => new $class, $this->discoveredPages);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -245,7 +268,7 @@ abstract class Panel implements JsonSerializable
             'favicon' => $this->favicon,
             'theme' => $this->theme()->toArray(),
             'layout' => $this->layout()->toArray(),
-            'navigation' => NavigationBuilder::build($this, $modules),
+            'navigation' => NavigationBuilder::build($this, $modules, $this->getPages()),
             'modules' => array_map(
                 fn (string $module) => $module::meta(),
                 $modules,

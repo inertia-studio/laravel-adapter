@@ -2,11 +2,14 @@
 
 namespace {{ namespace }};
 
-use InertiaStudio\Page as BasePage;
+use InertiaStudio\Pages\DashboardPage;
 
-class {{ class }} extends BasePage
+class {{ class }} extends DashboardPage
 {
-    protected string $slug = '{{ slug }}';
+    protected string $title = '{{ label }}';
 
-    protected string $label = '{{ label }}';
+    public function schema(): array
+    {
+        return [];
+    }
 }

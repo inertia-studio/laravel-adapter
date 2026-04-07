@@ -29,9 +29,10 @@ class InertiaStudioServiceProvider extends ServiceProvider
                 'App\\Studio',
             );
 
-            foreach ($discovered as $panelClass => $modules) {
+            foreach ($discovered as $panelClass => $discovery) {
                 $panel = new $panelClass;
-                $panel->setDiscoveredModules($modules);
+                $panel->setDiscoveredModules($discovery['modules']);
+                $panel->setDiscoveredPages($discovery['pages']);
                 $manager->register($panel);
             }
 

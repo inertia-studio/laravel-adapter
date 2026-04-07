@@ -3,16 +3,18 @@
 namespace InertiaStudio\Laravel\Discovery;
 
 use InertiaStudio\Module;
+use InertiaStudio\Pages\DashboardPage;
 use InertiaStudio\Panel;
 use ReflectionClass;
 
 class PanelDiscovery
 {
     /**
-     * Discover panels from app/Studio/{Name}/{Name}.php
-     * and their modules from app/Studio/{Name}/Modules/*.php
+     * Discover panels from app/Studio/{Name}/{Name}.php,
+     * their modules from app/Studio/{Name}/Modules/*.php,
+     * and their custom pages from app/Studio/{Name}/Pages/*.php (excluding Dashboard).
      *
-     * @return array<class-string<Panel>, array<class-string<Module>>>
+     * @return array<class-string<Panel>, array{modules: array<class-string<Module>>, pages: array<class-string<DashboardPage>>}>
      */
     public static function discover(string $basePath, string $baseNamespace = 'App\\Studio'): array
     {
@@ -53,7 +55,13 @@ class PanelDiscovery
                 $baseNamespace.'\\'.$dirName.'\\Modules',
             );
 
-            $results[$panelClass] = $modules;
+            // Discover custom pages from Pages/ subdirectory (excluding Dashboard)
+            $pages = static::discoverPages(
+                $directory.'/Pages',
+                $baseNamespace.'\\'.$dirName.'\\Pages',
+            );
+
+            $results[$panelClass] = ['modules' => $modules, 'pages' => $pages];
         }
 
         return $results;
@@ -89,5 +97,46 @@ class PanelDiscovery
         }
 
         return $modules;
+    }
+
+    /**
+     * Discover custom page classes from Pages/ (excluding Dashboard).
+     *
+     * @return array<class-string<DashboardPage>>
+     */
+    protected static function discoverPages(string $pagesPath, string $namespace): array
+    {
+        $pages = [];
+
+        if (! is_dir($pagesPath)) {
+            return $pages;
+        }
+
+        $files = glob($pagesPath.'/*.php');
+
+        foreach ($files as $file) {
+            $filename = pathinfo($file, PATHINFO_FILENAME);
+
+            // Dashboard is handled separately by PanelController::dashboard()
+            if ($filename === 'Dashboard') {
+                continue;
+            }
+
+            $className = $namespace.'\\'.$filename;
+
+            if (! class_exists($className)) {
+                continue;
+            }
+
+            $reflection = new ReflectionClass($className);
+
+            if ($reflection->isAbstract() || ! $reflection->isSubclassOf(DashboardPage::class)) {
+                continue;
+            }
+
+            $pages[] = $className;
+        }
+
+        return $pages;
     }
 }
