@@ -168,4 +168,14 @@ class Field
     {
         return new Fields\RatingField($name);
     }
+
+    public static function code(string $name): Fields\CodeField
+    {
+        return new Fields\CodeField($name);
+    }
+
+    public static function markdownEditor(string $name): Fields\MarkdownEditorField
+    {
+        return new Fields\MarkdownEditorField($name);
+    }
 }

@@ -132,6 +132,21 @@ class Widget implements JsonSerializable
         return $widget;
     }
 
+    // ─── Activity / Timeline Widgets ─────────────────────────
+
+    /**
+     * Activity log timeline.
+     *
+     * @param  array<array{title: string, description?: string, time?: string, icon?: string, color?: string, user?: string}>|Closure  $entries
+     */
+    public static function activity(string $label, array|Closure $entries = []): static
+    {
+        $widget = new static('activity', $label);
+        $widget->extra['entries'] = $entries instanceof Closure ? ($entries)() : $entries;
+
+        return $widget;
+    }
+
     // ─── Content Widgets ─────────────────────────────────────
 
     public static function section(string $heading): static
