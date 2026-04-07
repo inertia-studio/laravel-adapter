@@ -10,7 +10,7 @@ class RatingField extends BaseField
 
     protected bool $allowHalf = false;
 
-    protected string $icon = 'star';
+    protected string $ratingIcon = 'star';
 
     protected ?string $activeColor = null;
 
@@ -28,9 +28,9 @@ class RatingField extends BaseField
         return $this;
     }
 
-    public function icon(string $icon): static
+    public function ratingIcon(string $icon): static
     {
-        $this->icon = $icon;
+        $this->ratingIcon = $icon;
 
         return $this;
     }
@@ -51,7 +51,7 @@ class RatingField extends BaseField
             ...parent::toArray(),
             'max' => $this->max,
             'allowHalf' => $this->allowHalf,
-            'icon' => $this->icon,
+            'ratingIcon' => $this->ratingIcon,
             'activeColor' => $this->activeColor,
         ];
     }
