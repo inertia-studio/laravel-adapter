@@ -834,14 +834,6 @@ class PageActionBuilder implements JsonSerializable
     }
 
     /**
-     * @deprecated Use action() instead
-     */
-    public function url(string $url, string $method = 'POST'): static
-    {
-        return $this->action($url, $method);
-    }
-
-    /**
      * Set an explicit action key (used in route generation for closure actions).
      */
     public function key(string $key): static

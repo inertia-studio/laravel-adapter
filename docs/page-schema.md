@@ -37,7 +37,7 @@ Asymmetric split layout (ratios, e.g. `split(2, 1, [...])`).
 
 ```php
 PageSchema::split(2, 1, [
-    Widget::area('Revenue', fn () => $data),
+    Widget::stat('Revenue')->value(fn () => $revenue),
     Widget::stat('Total')->value($total),
 ])
 ```
@@ -159,12 +159,6 @@ Chain `->requiresConfirmation('Are you sure?')` for a confirmation dialog, or `-
 |---------|-------------|
 | `Widget::stat(string $label)` | Single stat tile. Chain `->value(...)`, `->description(...)`, `->change('+12%')`, `->color(...)`, `->icon(...)`. |
 | `Widget::statGroup(array $stats)` | Group of stat tiles without individual borders. |
-| `Widget::line(string $label, $data)` | Line chart. `$data` is `[['label' => '...', 'value' => n], ...]` or a Closure. |
-| `Widget::area(string $label, $data)` | Filled area chart. |
-| `Widget::bar(string $label, $data)` | Bar chart. |
-| `Widget::donut(string $label, $data)` | Donut / pie chart. Data entries may include `'color'`. |
-| `Widget::sparkline($values)` | Compact inline chart. `$values` is a flat array of numbers. |
-| `Widget::activity(string $label, $entries)` | Activity log timeline (same entry shape as `PageSchema::timeline`). |
 | `Widget::grid(int $columns, array $children)` | Grid of child widgets. |
 | `Widget::row(array $children)` | Auto-column grid (row). |
 | `Widget::card(string $label)` | Card container. Chain `->schema([...widgets])`. |
@@ -182,15 +176,3 @@ Widget::stat('Revenue')
     ->columns(2)                             // span 2 grid columns
 ```
 
-### Multi-series charts
-
-```php
-Widget::bar('Monthly Revenue')
-    ->series([
-        ['name' => '2023', 'data' => [1200, 900, 1500, ...]],
-        ['name' => '2024', 'data' => [1800, 1200, 2100, ...]],
-    ])
-    ->labels(['Jan', 'Feb', 'Mar', ...])
-    ->stacked()
-    ->height('300px')
-```

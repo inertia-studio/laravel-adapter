@@ -1,8 +1,5 @@
 <?php
 
-use InertiaStudio\Laravel\Icons\HeroiconsProvider;
-use InertiaStudio\Laravel\Icons\LucideProvider;
-
 return [
 
     /*
@@ -70,11 +67,6 @@ return [
 
     'icons' => [
         'default' => 'heroicons',
-
-        'providers' => [
-            'heroicons' => HeroiconsProvider::class,
-            'lucide' => LucideProvider::class,
-        ],
     ],
 
 ];
