@@ -38,6 +38,10 @@ abstract class BaseColumn implements JsonSerializable
 
     protected bool $canWrap = false;
 
+    protected ?string $width = null;
+
+    protected ?string $minWidth = null;
+
     public function __construct(
         protected string $name,
     ) {}
@@ -52,6 +56,20 @@ abstract class BaseColumn implements JsonSerializable
     public function sortable(): static
     {
         $this->isSortable = true;
+
+        return $this;
+    }
+
+    public function width(string $width): static
+    {
+        $this->width = $width;
+
+        return $this;
+    }
+
+    public function minWidth(string $minWidth): static
+    {
+        $this->minWidth = $minWidth;
 
         return $this;
     }
@@ -146,6 +164,8 @@ abstract class BaseColumn implements JsonSerializable
             'url' => $this->url !== null,
             'description' => $this->description instanceof Closure ? ($this->description)() : $this->description,
             'icon' => $this->getIconSchema(),
+            'width' => $this->width,
+            'minWidth' => $this->minWidth,
         ];
     }
 }
