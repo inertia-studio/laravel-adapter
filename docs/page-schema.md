@@ -4,7 +4,7 @@ title: Page Schema — Inertia Studio
 
 # Page Schema
 
-`PageSchema` is the universal composition primitive for every custom page. Return an array of `PageSchema` items from `DashboardPage::schema()` to build the page layout.
+`PageSchema` is the universal composition primitive for every custom page. Return an array of `PageSchema` items from `Page::schema()` to build the page layout.
 
 ## Layout primitives
 
@@ -153,7 +153,7 @@ Chain `->requiresConfirmation('Are you sure?')` for a confirmation dialog, or `-
 
 ## Widget reference
 
-`Widget` instances can be used anywhere a `PageSchema` child is accepted, and also directly in `DashboardPage::schema()`.
+`Widget` instances can be used anywhere a `PageSchema` child is accepted, and also directly in `Page::schema()`.
 
 | Factory | Description |
 |---------|-------------|

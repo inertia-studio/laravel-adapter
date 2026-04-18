@@ -41,4 +41,4 @@ Creates `app/Studio/Admin/Modules/Users.php` with a skeleton `table()`, `form()`
 php artisan studio:page Analytics --panel=Admin
 ```
 
-Creates `app/Studio/Admin/Pages/Analytics.php` extending `DashboardPage` with an empty `schema()` method. See [Pages](pages.md) for details.
+Creates `app/Studio/Admin/Pages/Analytics.php` extending `Page` with an empty `schema()` method. See [Pages](pages.md) for details.

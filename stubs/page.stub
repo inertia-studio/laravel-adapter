@@ -2,9 +2,9 @@
 
 namespace {{ namespace }};
 
-use InertiaStudio\Pages\DashboardPage;
+use InertiaStudio\Pages\Page;
 
-class {{ class }} extends DashboardPage
+class {{ class }} extends Page
 {
     protected string $title = '{{ label }}';
 

@@ -44,7 +44,7 @@ abstract class Panel implements JsonSerializable
     /** @var array<class-string<Module>> */
     protected array $discoveredModules = [];
 
-    /** @var array<class-string<\InertiaStudio\Pages\DashboardPage>> */
+    /** @var array<class-string<\InertiaStudio\Pages\Page>> */
     protected array $discoveredPages = [];
 
     public function theme(): Theme
@@ -233,7 +233,7 @@ abstract class Panel implements JsonSerializable
     /**
      * Set custom pages discovered by the adapter's auto-discovery.
      *
-     * @param  array<class-string<\InertiaStudio\Pages\DashboardPage>>  $pages
+     * @param  array<class-string<\InertiaStudio\Pages\Page>>  $pages
      */
     public function setDiscoveredPages(array $pages): void
     {
@@ -243,7 +243,7 @@ abstract class Panel implements JsonSerializable
     /**
      * Get all auto-discovered custom pages (excluding Dashboard).
      *
-     * @return array<\InertiaStudio\Pages\DashboardPage>
+     * @return array<\InertiaStudio\Pages\Page>
      */
     public function getPages(): array
     {

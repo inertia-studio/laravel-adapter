@@ -22,7 +22,7 @@ Initial release.
 - **Theming** — 10 color presets, dark mode, semantic tokens, customizable font/radius/density
 - **Navigation** — Groups with icons, collapsible, badges with colors, custom page links
 - **Dashboard pages** — Custom dashboard via `Pages/Dashboard.php`, auto-discovered
-- **Custom pages** — `studio:page` generator, DashboardPage base class, PageSchema composition
+- **Custom pages** — `studio:page` generator, Page base class, PageSchema composition
 - **Simple modules** — Modal-based CRUD with `$simple = true`
 - **Relations** — Relation managers with form/table on edit pages
 - **Tabs** — List page tabs with per-tab queries and badges

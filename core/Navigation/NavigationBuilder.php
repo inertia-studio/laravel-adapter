@@ -3,7 +3,7 @@
 namespace InertiaStudio\Navigation;
 
 use InertiaStudio\Module;
-use InertiaStudio\Pages\DashboardPage;
+use InertiaStudio\Pages\Page;
 use InertiaStudio\Panel;
 
 class NavigationBuilder
@@ -12,7 +12,7 @@ class NavigationBuilder
      * Build the navigation tree for a panel.
      *
      * @param  array<class-string<Module>>  $modules
-     * @param  array<DashboardPage>  $pages  Auto-discovered custom page instances (excluding Dashboard).
+     * @param  array<Page>  $pages  Auto-discovered custom page instances (excluding Dashboard).
      * @return array<array<string, mixed>>
      */
     public static function build(Panel $panel, array $modules, array $pages = []): array
@@ -29,7 +29,7 @@ class NavigationBuilder
     /**
      * @param  array<NavigationGroup>  $groups
      * @param  array<class-string<Module>>  $modules
-     * @param  array<DashboardPage>  $pages
+     * @param  array<Page>  $pages
      * @return array<array<string, mixed>>
      */
     protected static function buildFromGroups(Panel $panel, array $groups, array $modules, array $pages = []): array
@@ -70,10 +70,10 @@ class NavigationBuilder
         }, $groups)));
 
         // Auto-discovered pages not explicitly placed in a group
-        $visiblePages = array_filter($pages, fn (DashboardPage $p) => ! $p->isHiddenFromNavigation());
+        $visiblePages = array_filter($pages, fn (Page $p) => ! $p->isHiddenFromNavigation());
 
-        $beforePages = array_values(array_filter($visiblePages, fn (DashboardPage $p) => $p->getNavigationPosition() === 'before-list'));
-        $afterPages = array_values(array_filter($visiblePages, fn (DashboardPage $p) => $p->getNavigationPosition() !== 'before-list'));
+        $beforePages = array_values(array_filter($visiblePages, fn (Page $p) => $p->getNavigationPosition() === 'before-list'));
+        $afterPages = array_values(array_filter($visiblePages, fn (Page $p) => $p->getNavigationPosition() !== 'before-list'));
 
         $result = [];
 
@@ -83,7 +83,7 @@ class NavigationBuilder
                 'icon' => null,
                 'collapsible' => false,
                 'collapsed' => false,
-                'items' => array_map(fn (DashboardPage $p) => static::pageToItem($panel, $p), $beforePages),
+                'items' => array_map(fn (Page $p) => static::pageToItem($panel, $p), $beforePages),
             ];
         }
 
@@ -95,7 +95,7 @@ class NavigationBuilder
                 'icon' => null,
                 'collapsible' => false,
                 'collapsed' => false,
-                'items' => array_map(fn (DashboardPage $p) => static::pageToItem($panel, $p), $afterPages),
+                'items' => array_map(fn (Page $p) => static::pageToItem($panel, $p), $afterPages),
             ];
         }
 
@@ -104,7 +104,7 @@ class NavigationBuilder
 
     /**
      * @param  array<class-string<Module>>  $modules
-     * @param  array<DashboardPage>  $pages
+     * @param  array<Page>  $pages
      * @return array<array<string, mixed>>
      */
     protected static function buildFlat(Panel $panel, array $modules, array $pages = []): array
@@ -125,10 +125,10 @@ class NavigationBuilder
             }
         }
 
-        $visiblePages = array_filter($pages, fn (DashboardPage $p) => ! $p->isHiddenFromNavigation());
+        $visiblePages = array_filter($pages, fn (Page $p) => ! $p->isHiddenFromNavigation());
 
-        $beforePages = array_values(array_filter($visiblePages, fn (DashboardPage $p) => $p->getNavigationPosition() === 'before-list'));
-        $afterPages = array_values(array_filter($visiblePages, fn (DashboardPage $p) => $p->getNavigationPosition() !== 'before-list'));
+        $beforePages = array_values(array_filter($visiblePages, fn (Page $p) => $p->getNavigationPosition() === 'before-list'));
+        $afterPages = array_values(array_filter($visiblePages, fn (Page $p) => $p->getNavigationPosition() !== 'before-list'));
 
         $result = [];
 
@@ -139,7 +139,7 @@ class NavigationBuilder
                 'icon' => null,
                 'collapsible' => false,
                 'collapsed' => false,
-                'items' => array_map(fn (DashboardPage $p) => static::pageToItem($panel, $p), $beforePages),
+                'items' => array_map(fn (Page $p) => static::pageToItem($panel, $p), $beforePages),
             ];
         }
 
@@ -178,7 +178,7 @@ class NavigationBuilder
                 'icon' => null,
                 'collapsible' => false,
                 'collapsed' => false,
-                'items' => array_map(fn (DashboardPage $p) => static::pageToItem($panel, $p), $afterPages),
+                'items' => array_map(fn (Page $p) => static::pageToItem($panel, $p), $afterPages),
             ];
         }
 
@@ -207,7 +207,7 @@ class NavigationBuilder
     /**
      * @return array<string, mixed>
      */
-    protected static function pageToItem(Panel $panel, DashboardPage $page): array
+    protected static function pageToItem(Panel $panel, Page $page): array
     {
         return (new NavigationItem(
             label: $page->getNavigationLabel(),

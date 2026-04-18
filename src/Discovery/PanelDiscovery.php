@@ -3,7 +3,7 @@
 namespace InertiaStudio\Laravel\Discovery;
 
 use InertiaStudio\Module;
-use InertiaStudio\Pages\DashboardPage;
+use InertiaStudio\Pages\Page;
 use InertiaStudio\Panel;
 use ReflectionClass;
 
@@ -14,7 +14,7 @@ class PanelDiscovery
      * their modules from app/Studio/{Name}/Modules/*.php,
      * and their custom pages from app/Studio/{Name}/Pages/*.php (excluding Dashboard).
      *
-     * @return array<class-string<Panel>, array{modules: array<class-string<Module>>, pages: array<class-string<DashboardPage>>}>
+     * @return array<class-string<Panel>, array{modules: array<class-string<Module>>, pages: array<class-string<Page>>}>
      */
     public static function discover(string $basePath, string $baseNamespace = 'App\\Studio'): array
     {
@@ -102,7 +102,7 @@ class PanelDiscovery
     /**
      * Discover custom page classes from Pages/ (excluding Dashboard).
      *
-     * @return array<class-string<DashboardPage>>
+     * @return array<class-string<Page>>
      */
     protected static function discoverPages(string $pagesPath, string $namespace): array
     {
@@ -130,7 +130,7 @@ class PanelDiscovery
 
             $reflection = new ReflectionClass($className);
 
-            if ($reflection->isAbstract() || ! $reflection->isSubclassOf(DashboardPage::class)) {
+            if ($reflection->isAbstract() || ! $reflection->isSubclassOf(Page::class)) {
                 continue;
             }
 
