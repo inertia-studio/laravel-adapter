@@ -45,4 +45,18 @@ trait HasAuthorization
         return $this->authorizeModuleAction($moduleClass, 'delete', $record);
     }
 
+    protected function canDeleteAny(string $moduleClass): bool
+    {
+        return $this->authorizeModuleAction($moduleClass, 'deleteAny');
+    }
+
+    protected function canRestore(string $moduleClass, Model $record): bool
+    {
+        return $this->authorizeModuleAction($moduleClass, 'restore', $record);
+    }
+
+    protected function canForceDelete(string $moduleClass, Model $record): bool
+    {
+        return $this->authorizeModuleAction($moduleClass, 'forceDelete', $record);
+    }
 }
